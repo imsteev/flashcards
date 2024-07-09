@@ -7,5 +7,5 @@ create table flashcards (
 create table flashcard_tags (
 	id SERIAL PRIMARY KEY,
 	flashcard_id INTEGER NOT NULL,
-	tag TEXT NOT NULL
+	tag VARCHAR(100) NOT NULL UNIQUE
 );
