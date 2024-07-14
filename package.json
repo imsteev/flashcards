@@ -9,6 +9,9 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "postgres": "^3.4.4"
+    "express": "^4.19.2",
+    "postgres": "^3.4.4",
+    "react": "^19.0.0-rc-378b305958-20240710",
+    "react-dom": "^19.0.0-rc-378b305958-20240710"
   }
 }

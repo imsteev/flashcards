@@ -1,4 +1,0 @@
-imports:
-
-import {namespace} from '<path>';
-

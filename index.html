@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://unpkg.com/htmx.org@2.0.1" integrity="sha384-QWGpdj554B4ETpJJC9z+ZHJcA/i59TyjxEPXiiUgN2WmTyV5OEZWCD6gQhgkdpB/" crossorigin="anonymous"></script>
+    <style>
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }​
+    .flashcard-container {
+      display: flex;
+      flex-direction: column;
+      margin: 0 2rem;
+    }
+    .flashcard {
+    }
+  </style>
+  </head>
+      <body>
+    <h1>Flashcards</h1>
+  <form hx-post="/flashcards">
+    <label for="prompt">prompt:</label>
+    <input id="prompt" name="prompt" type="text" />
+    <label for="answer">answer:</label>
+    <input id="answer" name="answer" type="text"/>
+    <button>create flashcard</button>
+  </form>
+  <div class="flashcard-container">
+    <ul>
+      {{ range $flashcard := . }}
+        <div class="flashcard">
+        <div>{{ .Prompt }}</div>
+        {{ if .Answer }}
+        <div class="hidden">
+          {{ .Answer }}
+        </div>
+        {{end}}
+        <button>reveal</button>
+      </div>
+      {{ end }}
+    </u>
+  </div>
+  </body>
+</html>
