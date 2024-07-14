@@ -1,0 +1,24 @@
+ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.flashcard-container {
+  display: flex;
+  flex-direction: column;
+  margin: 0 2rem;
+}
+
+.flashcard {
+  color: blue;
+  display: flex;
+  gap: 4rem;
+}
+
+.flashcard-answer {
+  color: red;
+}
+
+.hidden {
+  display: none;
+}

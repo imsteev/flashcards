@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"embed"
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -15,12 +17,20 @@ const (
 	DATABASE_URL = "postgres://localhost:5432/flashcards"
 )
 
+var (
+	//go:embed assets/*
+	assets embed.FS
+)
+
 func main() {
 	conn, err := pgx.Connect(context.Background(), DATABASE_URL)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to connect to postgres: %v\n", err)
 	}
 	defer conn.Close(context.Background())
+
+	http.Handle("/assets/*", http.FileServerFS(assets))
+
 	http.HandleFunc("/flashcards/{id}", func(w http.ResponseWriter, r *http.Request) {
 		answer := r.FormValue("answer")
 		id, err := strconv.Atoi(r.PathValue("id"))
@@ -81,24 +91,7 @@ func main() {
 		<html>
 		  <head>
 		  	<script src="https://unpkg.com/htmx.org@2.0.1" integrity="sha384-QWGpdj554B4ETpJJC9z+ZHJcA/i59TyjxEPXiiUgN2WmTyV5OEZWCD6gQhgkdpB/" crossorigin="anonymous"></script>
-		  	<style>
-				ul {
-					list-style: none;
-					padding-left: 0;
-				}​
-				.flashcard-container {
-					display: flex;
-					flex-direction: column;
-					margin: 0 2rem;
-				}
-				.flashcard {
-					display: flex;
-					gap: 4rem;
-				}
-				.hidden {
-					display: none;
-				}
-			</style>
+		  	<link rel="stylesheet" href="/assets/root.css">
 		  </head>
           <body>
 		    <h1>Flashcards</h1>
@@ -135,5 +128,7 @@ func main() {
 		}
 		t.Execute(w, flashcards)
 	})
-	http.ListenAndServe(":8080", nil)
+	if err := http.ListenAndServe(":8080", nil); err != nil {
+		log.Fatalf("server failed: %v", err)
+	}
 }
