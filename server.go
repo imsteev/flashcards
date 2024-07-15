@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cmp"
 	"context"
 	"embed"
 	"fmt"
@@ -13,11 +14,10 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-const (
-	DATABASE_URL = "postgres://localhost:5432/flashcards"
-)
-
 var (
+	PORT         = cmp.Or(os.Getenv("PORT"), ":8080")
+	DATABASE_URL = cmp.Or(os.Getenv("DATABASE_URL"), "postgres://localhost:5432/flashcards")
+
 	//go:embed assets/*
 	assets embed.FS
 )
@@ -29,9 +29,9 @@ func main() {
 	}
 	defer conn.Close(context.Background())
 
-	http.Handle("/assets/*", http.FileServerFS(assets))
+	http.Handle("GET /assets/*", http.FileServerFS(assets))
 
-	http.HandleFunc("/flashcards/{id}", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("PATCH /flashcards/{id}", func(w http.ResponseWriter, r *http.Request) {
 		answer := r.FormValue("answer")
 		id, err := strconv.Atoi(r.PathValue("id"))
 		if err != nil {
@@ -48,7 +48,7 @@ func main() {
 		}
 		w.Write([]byte(fmt.Sprintf("inserted rows: %d", tag.RowsAffected())))
 	})
-	http.HandleFunc("/flashcards", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("POST /flashcards", func(w http.ResponseWriter, r *http.Request) {
 		prompt := r.FormValue("prompt")
 		answer := r.FormValue("answer")
 
@@ -58,9 +58,10 @@ func main() {
 			fmt.Fprintf(w, "internal server error: %s", err)
 			return
 		}
+
 		w.Write([]byte(fmt.Sprintf("inserted rows: %d", tag.RowsAffected())))
 	})
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
 		rows, err := conn.Query(context.Background(), `select * from flashcards`)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -95,7 +96,7 @@ func main() {
 		  </head>
           <body>
 		    <h1>Flashcards</h1>
-			<div class="flashcard" style="width: max(75%, 256px); margin-inline: auto; margin-block: 2rem">
+			<div class="flashcard" style="width: max(75%, 256px); margin-inline-start: 2rem; margin-block: 2rem">
 				<div>New flashcard</div>
 				<form hx-post="/flashcards">
 					<label for="prompt">prompt:</label>
@@ -113,7 +114,7 @@ func main() {
 						<button hx-on:click="document.getElementById('flashcard-{{.ID}}').classList.toggle('hidden')">show/hide</button>
 					</div>
 					<div id="flashcard-{{ .ID }}" class="flashcard-answer hidden">
-						<form hx-patch="/flashcards/{{.ID}}">
+						<form hx-patch="/flashcards/{{.ID}}" hx-swap="none">
 							Answer: <input type="text" name="answer" value="{{ .Answer }}"></input>
 							<button type="submit">update</button>
 						</form>
@@ -131,7 +132,7 @@ func main() {
 		}
 		t.Execute(w, flashcards)
 	})
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	if err := http.ListenAndServe(PORT, nil); err != nil {
 		log.Fatalf("server failed: %v", err)
 	}
 }
