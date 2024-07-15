@@ -22,6 +22,12 @@ var (
 	assets embed.FS
 )
 
+type Flashcard struct {
+	ID     int64
+	Prompt string
+	Answer *string
+}
+
 func main() {
 	conn, err := pgx.Connect(context.Background(), DATABASE_URL)
 	if err != nil {
@@ -54,14 +60,33 @@ func main() {
 		prompt := r.FormValue("prompt")
 		answer := r.FormValue("answer")
 
-		tag, err := conn.Exec(context.Background(), `INSERT INTO flashcards (prompt, answer) VALUES ($1,$2)`, prompt, answer)
+		row := conn.QueryRow(context.Background(), `INSERT INTO flashcards (prompt, answer) VALUES ($1,$2) RETURNING *`, prompt, answer)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Fprintf(w, "internal server error: %s", err)
 			return
 		}
 
-		w.Write([]byte(fmt.Sprintf("inserted rows: %d", tag.RowsAffected())))
+		var created Flashcard
+		if err := row.Scan(&created.ID, &created.Prompt, &created.Answer); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprintf(w, "internal server error: %s", err)
+			return
+		}
+
+		t, _ := template.New("flashcard-frag").Parse(`<div class="flashcard">
+			<div>
+				<div>{{ .Prompt }}</div>
+				<button hx-on:click="document.getElementById('flashcard-{{.ID}}').classList.toggle('hidden')">show/hide</button>
+			</div>
+			<div id="flashcard-{{ .ID }}" class="flashcard-answer hidden">
+				<form hx-patch="/flashcards/{{.ID}}" hx-swap="none">
+					Answer: <input type="text" name="answer" value="{{ .Answer }}"></input>
+					<button type="submit">update</button>
+				</form>
+			</div>
+			</div>`)
+		t.Execute(w, created)
 	})
 	http.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
 		rows, err := conn.Query(context.Background(), `select * from flashcards`)
@@ -71,11 +96,6 @@ func main() {
 			return
 		}
 
-		type Flashcard struct {
-			ID     int64
-			Prompt string
-			Answer *string
-		}
 		var flashcards []Flashcard
 		for rows.Next() {
 			var f Flashcard
@@ -100,7 +120,7 @@ func main() {
 		    <h1>Flashcards</h1>
 			<div class="flashcard" style="width: max(75%, 256px); margin-inline-start: 2rem; margin-block: 2rem">
 				<div>New flashcard</div>
-				<form hx-post="/flashcards">
+				<form hx-post="/flashcards" hx-swap="afterbegin" hx-target=".flashcard-container" hx-on::after-request="this.reset()">
 					<label for="prompt">prompt:</label>
 					<input id="prompt" name="prompt" type="text" />
 					<label for="answer">answer:</label>
