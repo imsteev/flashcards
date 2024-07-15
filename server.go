@@ -29,7 +29,9 @@ func main() {
 	}
 	defer conn.Close(context.Background())
 
-	http.Handle("GET /assets/*", http.FileServerFS(assets))
+	http.HandleFunc("GET /assets/*", func(w http.ResponseWriter, r *http.Request) {
+		http.FileServerFS(assets).ServeHTTP(w, r)
+	})
 
 	http.HandleFunc("PATCH /flashcards/{id}", func(w http.ResponseWriter, r *http.Request) {
 		answer := r.FormValue("answer")
