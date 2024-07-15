@@ -4,15 +4,20 @@ ul {
 }
 
 .flashcard-container {
+  margin-top: 2rem;
   display: flex;
   flex-direction: column;
   margin: 0 2rem;
+  gap: 1rem;
 }
 
 .flashcard {
   color: blue;
   display: flex;
+  padding: 2rem;
+  justify-content: space-between;
   gap: 4rem;
+  border: solid 1px;
 }
 
 .flashcard-answer {

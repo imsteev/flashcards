@@ -95,28 +95,31 @@ func main() {
 		  </head>
           <body>
 		    <h1>Flashcards</h1>
-			<form hx-post="/flashcards">
-				<label for="prompt">prompt:</label>
-				<input id="prompt" name="prompt" type="text" />
-				<label for="answer">answer:</label>
-				<input id="answer" name="answer" type="text"/>
-				<button>create flashcard</button>
-			</form>
+			<div class="flashcard" style="width: max(75%, 256px); margin-inline: auto; margin-block: 2rem">
+				<div>New flashcard</div>
+				<form hx-post="/flashcards">
+					<label for="prompt">prompt:</label>
+					<input id="prompt" name="prompt" type="text" />
+					<label for="answer">answer:</label>
+					<input id="answer" name="answer" type="text"/>
+					<button>create</button>
+				</form>
+			</div>
 			<div class="flashcard-container">
-				<ul>
-				  {{ range $flashcard := . }}
-				  	<div class="flashcard">
+				{{ range $flashcard := . }}
+				<div class="flashcard">
+					<div>
 						<div>{{ .Prompt }}</div>
 						<button hx-on:click="document.getElementById('flashcard-{{.ID}}').classList.toggle('hidden')">show/hide</button>
-						<div id="flashcard-{{ .ID }}" class="flashcard-answer hidden">
-							<form hx-patch="/flashcards/{{.ID}}">
-								Answer: <input type="text" name="answer" value="{{ .Answer }}"></input>
-								<button type="submit">update</button>
-							</form>
-						</div>
 					</div>
-				  {{ end }}
-				</u>
+					<div id="flashcard-{{ .ID }}" class="flashcard-answer hidden">
+						<form hx-patch="/flashcards/{{.ID}}">
+							Answer: <input type="text" name="answer" value="{{ .Answer }}"></input>
+							<button type="submit">update</button>
+						</form>
+					</div>
+				</div>
+				{{ end }}
 			</div>
 		  </body>
 		</html>
