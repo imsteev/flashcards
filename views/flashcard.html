@@ -1,0 +1,18 @@
+{{ define "flashcard" }}
+<div class="flashcard">
+  <div class="flashcard-prompt">
+    <div>{{ .Prompt }}</div>
+    <details>
+      <summary>answer</summary>
+      <p>{{.Answer}}</p>
+    </details>
+  </div>
+  <div id="flashcard-{{ .ID }}" class="flashcard-answer">
+    <form id="update-flashcard-{{.ID}}-answer" hx-patch="/flashcards/{{.ID}}" hx-swap="none" class="hidden">
+      Answer: <input type="text" name="answer" value="{{ .Answer }}"></input>
+      <button type="submit">update</button>
+      </form>
+    <button hx-on:click="document.getElementById('update-flashcard-{{.ID}}-answer').classList.toggle('hidden')">✏️</button>
+  </div>
+</div>
+{{ end }}

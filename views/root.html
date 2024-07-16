@@ -1,0 +1,34 @@
+{{ define "root" }}
+<!DOCTYPE html>
+<html>
+  <head>
+    <script
+      src="https://unpkg.com/htmx.org@2.0.1"
+      integrity="sha384-QWGpdj554B4ETpJJC9z+ZHJcA/i59TyjxEPXiiUgN2WmTyV5OEZWCD6gQhgkdpB/"
+      crossorigin="anonymous"
+    ></script>
+    <link rel="stylesheet" href="/assets/root.css" />
+  </head>
+  <body>
+    <h1>Flashcards</h1>
+    <div class="flashcard">
+      <form
+        hx-post="/flashcards"
+        hx-swap="afterbegin"
+        hx-target=".flashcard-container"
+        hx-on::after-request="this.reset()"
+      >
+        <label for="prompt">prompt:</label>
+        <input id="prompt" name="prompt" type="text" />
+        <label for="answer">answer:</label>
+        <input id="answer" name="answer" type="text" />
+        <button>create</button>
+      </form>
+    </div>
+    <div class="flashcard-container">
+      {{ range $flashcard := . }} {{ template "flashcard" $flashcard }} {{ end
+      }}
+    </div>
+  </body>
+</html>
+{{end}}
