@@ -74,18 +74,19 @@ func main() {
 			return
 		}
 
-		t, _ := template.New("flashcard-frag").Parse(`<div class="flashcard">
-			<div>
-				<div>{{ .Prompt }}</div>
-				<button hx-on:click="document.getElementById('flashcard-{{.ID}}').classList.toggle('hidden')">show/hide</button>
-			</div>
-			<div id="flashcard-{{ .ID }}" class="flashcard-answer hidden">
-				<form hx-patch="/flashcards/{{.ID}}" hx-swap="none">
-					Answer: <input type="text" name="answer" value="{{ .Answer }}"></input>
-					<button type="submit">update</button>
-				</form>
-			</div>
-			</div>`)
+		t, _ := template.New("flashcard-frag").Parse(`
+				<div class="flashcard">
+					<div class="flashcard-prompt">
+						<div>{{ .Prompt }}</div>
+					</div>
+					<div id="flashcard-{{ .ID }}" class="flashcard-answer">
+						<form id="update-flashcard-{{.ID}}-answer" hx-patch="/flashcards/{{.ID}}" hx-swap="none" class="hidden">
+							Answer: <input type="text" name="answer" value="{{ .Answer }}"></input>
+							<button type="submit">update</button>
+							</form>
+						<button hx-on:click="document.getElementById('update-flashcard-{{.ID}}-answer').classList.toggle('hidden')">👀</button>
+					</div>
+				</div>`)
 		t.Execute(w, created)
 	})
 	http.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
@@ -118,8 +119,7 @@ func main() {
 		  </head>
           <body>
 		    <h1>Flashcards</h1>
-			<div class="flashcard" style="width: max(75%, 256px); margin-inline-start: 2rem; margin-block: 2rem">
-				<div>New flashcard</div>
+			<div class="flashcard">
 				<form hx-post="/flashcards" hx-swap="afterbegin" hx-target=".flashcard-container" hx-on::after-request="this.reset()">
 					<label for="prompt">prompt:</label>
 					<input id="prompt" name="prompt" type="text" />
@@ -131,15 +131,19 @@ func main() {
 			<div class="flashcard-container">
 				{{ range $flashcard := . }}
 				<div class="flashcard">
-					<div>
+					<div class="flashcard-prompt">
 						<div>{{ .Prompt }}</div>
-						<button hx-on:click="document.getElementById('flashcard-{{.ID}}').classList.toggle('hidden')">show/hide</button>
+						<details>
+							<summary>answer</summary>
+							<p>{{.Answer}}</p>
+						</details>
 					</div>
-					<div id="flashcard-{{ .ID }}" class="flashcard-answer hidden">
-						<form hx-patch="/flashcards/{{.ID}}" hx-swap="none">
+					<div id="flashcard-{{ .ID }}" class="flashcard-answer">
+						<form id="update-flashcard-{{.ID}}-answer" hx-patch="/flashcards/{{.ID}}" hx-swap="none" class="hidden">
 							Answer: <input type="text" name="answer" value="{{ .Answer }}"></input>
 							<button type="submit">update</button>
-						</form>
+							</form>
+						<button hx-on:click="document.getElementById('update-flashcard-{{.ID}}-answer').classList.toggle('hidden')">✏️</button>
 					</div>
 				</div>
 				{{ end }}

@@ -1,3 +1,15 @@
+:root {
+  --shadow-color: 193deg 9% 59%;
+  --shadow-elevation-medium: 0px 0.5px 0.7px hsl(var(--shadow-color) / 0.08),
+    0px 2.1px 2.9px -0.2px hsl(var(--shadow-color) / 0.19),
+    0px 4.3px 6px -0.4px hsl(var(--shadow-color) / 0.31),
+    0.1px 9.2px 12.9px -0.6px hsl(var(--shadow-color) / 0.42);
+}
+
+body {
+  padding: 0 4rem 2rem;
+  background-color: #d7e2e5;
+}
 ul {
   list-style: none;
   padding-left: 0;
@@ -7,23 +19,44 @@ ul {
   margin-top: 2rem;
   display: flex;
   flex-direction: column;
-  margin: 0 2rem;
-  gap: 1rem;
+  gap: 4rem;
 }
 
 .flashcard {
-  color: blue;
+  font-size: xx-large;
+  width: 80vw;
+  height: 30vh;
+  background-color: white;
+  box-shadow: var(--shadow-elevation-medium);
   display: flex;
   padding: 2rem;
-  justify-content: space-between;
   gap: 4rem;
-  border: solid 1px;
+  border-radius: 5px;
+  justify-content: space-between;
+}
+
+.flashcard-prompt {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: flex-start;
 }
 
 .flashcard-answer {
+  height: 100%;
   color: red;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
 }
 
 .hidden {
   display: none;
+}
+
+details {
+  cursor: pointer;
+}
+details > p {
+  font-style: italic;
 }
