@@ -1,7 +1,7 @@
 # flashcards
 
 ## development
-For first time setup, you will need to initialize tables. If you use `psql`, you can shell in to execute `install.sql`.
+For first time setup, you will need to initialize tables. You can do this in `psql`shell by executing `install.sql`.
 ```psql
 flashcards=# \i install.sql;
 ```
