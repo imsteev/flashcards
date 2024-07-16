@@ -94,7 +94,6 @@ func (a *App) GetHomePage(w http.ResponseWriter, r *http.Request) {
 	// interpolate the flashcards in a list
 
 	tmpls, err := template.ParseFS(views, "views/root.html", "views/flashcard.html")
-	fmt.Println(tmpls)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "internal server error: %s", err)
